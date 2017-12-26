@@ -1,0 +1,42 @@
+{
+  "name": "broccoli-hyde-compiler",
+  "version": "0.0.1",
+  "description": "Broccoli plugin to compile jekyll-like markdown input to static content + index output",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "babel src -d dist",
+    "lint": "./node_modules/.bin/eslint src",
+    "prepublish": "npm run build"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/anulman/broccoli-hyde-compiler.git"
+  },
+  "keywords": [
+    "broccoli-plugin",
+    "compiler",
+    "hyde",
+    "jekyll",
+    "markdown"
+  ],
+  "author": "Aidan Nulman <anulman@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/anulman/broccoli-hyde-compiler/issues"
+  },
+  "homepage": "https://github.com/anulman/broccoli-hyde-compiler#readme",
+  "dependencies": {
+    "broccoli-caching-writer": "^3.0.3",
+    "fs-extra": "^5.0.0",
+    "mr-hyde": "^0.0.1"
+  },
+  "devDependencies": {
+    "babel-cli": "^6.26.0",
+    "babel-plugin-transform-runtime": "^6.23.0",
+    "babel-preset-env": "^1.6.1",
+    "babel-preset-es2015": "^6.24.1",
+    "babel-preset-es2017": "^6.24.1",
+    "babel-register": "^6.26.0",
+    "babel-runtime": "^6.26.0"
+  }
+}
