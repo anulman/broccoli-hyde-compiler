@@ -25,10 +25,11 @@ export default class HydeCompiler extends CachingWriter {
     for (let fullpath of this.listFiles()) {
       if (await hyde.parseFile(fullpath, this.inputPaths[0]) === undefined) {
         let content = await readFile(fullpath, 'utf8')
-        let pathComponents = fullpath.split(sep);
+        let filepath = fullpath.slice(this.inputPaths[0].length);
         let outputPath = join(...[
           this.outputPath,
-          ...pathComponents.slice(pathComponents.indexOf(hyde.name))
+          hyde.name,
+          filepath
         ]);
 
         await outputFile(outputPath, content);
