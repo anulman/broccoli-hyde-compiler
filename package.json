@@ -1,6 +1,6 @@
 {
   "name": "broccoli-hyde-compiler",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Broccoli plugin to compile jekyll-like markdown input to static content + index output",
   "main": "dist/index.js",
   "scripts": {
