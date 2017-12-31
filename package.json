@@ -28,7 +28,7 @@
   "dependencies": {
     "broccoli-caching-writer": "^3.0.3",
     "fs-extra": "^5.0.0",
-    "mr-hyde": "^0.0.1"
+    "mr-hyde": "~0.0.1"
   },
   "devDependencies": {
     "babel-cli": "^6.26.0",

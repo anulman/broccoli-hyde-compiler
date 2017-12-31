@@ -1306,9 +1306,9 @@ mktemp@~0.4.0:
   version "0.4.0"
   resolved "https://registry.yarnpkg.com/mktemp/-/mktemp-0.4.0.tgz#6d0515611c8a8c84e484aa2000129b98e981ff0b"
 
-mr-hyde@^0.0.1:
-  version "0.0.1"
-  resolved "https://registry.yarnpkg.com/mr-hyde/-/mr-hyde-0.0.1.tgz#ea3eccb8d3c3320af6cc6fb8a41768574d58c6f7"
+mr-hyde@~0.0.1:
+  version "0.0.2"
+  resolved "https://registry.yarnpkg.com/mr-hyde/-/mr-hyde-0.0.2.tgz#c34b3d4e6c15475c4fbf455628ce52aec390dc7d"
   dependencies:
     fs-extra "^5.0.0"
     js-yaml "^3.10.0"
