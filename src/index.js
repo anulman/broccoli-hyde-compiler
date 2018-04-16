@@ -1,6 +1,7 @@
 import CachingWriter from 'broccoli-caching-writer';
 import Hyde from 'mr-hyde';
 
+import { defaults, defaultsDeep } from 'lodash';
 import { join, extname } from 'path';
 import { readFile, readJSON, outputFile, outputJSON } from 'fs-extra';
 import { safeLoad } from 'js-yaml';
@@ -25,29 +26,54 @@ export default class HydeCompiler extends CachingWriter {
 
       if (await hyde.parseFile(fullpath, { id }) === undefined) {
         switch (ext) {
-        let content = await readFile(fullpath, 'utf8')
-        let filepath = fullpath.slice(this.inputPaths[0].length);
-        let outputPath = join(...[
-          this.outputPath,
-          hyde.name,
-          filepath
-        ]);
+          case '.yml':
+            let yaml = await tryReadYAML(fullpath);
+            let yamlPath = join(outputPath, `${id}.yml`);
+            let jsonPath = join(outputPath, `${id}.json`);
 
-        await outputFile(outputPath, content);
+            if (yaml !== null) {
+              await outputFile(yamlPath, await readFile(fullpath));
+              await outputJSON(jsonPath, defaultsDeep(...[
+                await tryReadJSON(fullpath.replace(/\.yml$/, '.json')),
+                yaml,
+                await tryReadJSON(outputPath)
+              ]));
+            }
+
+            break;
+          case '.json':
+            await outputJSON(join(outputPath, `${id}.json`), defaultsDeep(...[
+              await tryReadJSON(fullpath),
+              await tryReadJSON(outputPath)
+            ]));
+
+            break;
+        }
       }
     }
 
     for (let item of hyde.items) {
-      let filepath = join(this.outputPath, item.id);
+      let filepath = join(outputPath, `${item.id}${item.ext}`);
+      let jsonFilepath = join(outputPath, `${item.id}.json`);
+      let json = await tryReadJSON(jsonFilepath);
+      let yaml = await tryReadYAML(join(outputPath, `${item.id}.yml`));
 
-      await outputFile(`${filepath}.md`, item.markdown);
-      await outputJSON(`${filepath}.json`, hyde.serialize(item));
+      await outputFile(filepath, item.markdown);
+      await outputJSON(jsonFilepath, defaultsDeep(...[
+        json || {},
+        yaml || {},
+        hyde.serialize(item)
+      ]));
     }
 
     for (let collection of hyde.collections) {
-      let filepath = join(this.outputPath, collection.id);
+      let filepath = join(outputPath, `${collection.id}.json`);
+      let json = await tryReadJSON(filepath);
 
-      await outputJSON(`${filepath}.json`, hyde.serialize(collection));
+      await outputJSON(filepath, defaultsDeep(...[
+        json || {},
+        hyde.serialize(collection)
+      ]));
     }
   }
 }
