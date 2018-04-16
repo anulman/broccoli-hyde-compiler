@@ -1,8 +1,8 @@
 import CachingWriter from 'broccoli-caching-writer';
 import Hyde from 'mr-hyde';
 
-import { join, sep } from 'path';
 import { readFile, outputFile, outputJSON } from 'fs-extra';
+import { join, extname } from 'path';
 
 export default class HydeCompiler extends CachingWriter {
   constructor(inputNode, options) {
@@ -16,14 +16,16 @@ export default class HydeCompiler extends CachingWriter {
   }
 
   async build() {
-    const pathStartIndex = this.inputPaths[0].length;
-
-    let hyde = this.hyde;
-
-    this.outputPath = join(this.outputPath, 'hyde');
+    let { hyde, outputPath } = this;
 
     for (let fullpath of this.listFiles()) {
-      if (await hyde.parseFile(fullpath, this.inputPaths[0]) === undefined) {
+      let ext = extname(fullpath);
+      let id = fullpath
+        .replace(new RegExp(`(.)*/hyde/${this.hyde.name}/`), '')
+        .replace(new RegExp(`${ext}$`), '');
+
+      if (await hyde.parseFile(fullpath, { id }) === undefined) {
+        switch (ext) {
         let content = await readFile(fullpath, 'utf8')
         let filepath = fullpath.slice(this.inputPaths[0].length);
         let outputPath = join(...[
