@@ -7,11 +7,9 @@ import { safeLoad } from 'js-yaml';
 
 export default class HydeCompiler extends CachingWriter {
   constructor(inputNode, options) {
-    super([inputNode], {
-      annotation: options && options.annotation,
-      name: "broccoli-hyde-compiler",
-      persistentOutput: true,
-    });
+    super([inputNode], defaults({ name: 'broccoli-hyde-compiler' }, options, {
+      persistentOutput: true
+    }));
 
     this.hyde = new Hyde(options && options.name);
   }
