@@ -1,8 +1,9 @@
 import CachingWriter from 'broccoli-caching-writer';
 import Hyde from 'mr-hyde';
 
-import { readFile, outputFile, outputJSON } from 'fs-extra';
 import { join, extname } from 'path';
+import { readFile, readJSON, outputFile, outputJSON } from 'fs-extra';
+import { safeLoad } from 'js-yaml';
 
 export default class HydeCompiler extends CachingWriter {
   constructor(inputNode, options) {
@@ -50,5 +51,21 @@ export default class HydeCompiler extends CachingWriter {
 
       await outputJSON(`${filepath}.json`, hyde.serialize(collection));
     }
+  }
+}
+
+async function tryReadJSON(filepath) {
+  try {
+    return await readJSON(filepath);
+  } catch (err) {
+    return null;
+  }
+}
+
+async function tryReadYAML(filepath) {
+  try {
+    return safeLoad(await readFile(filepath, 'utf-8'));
+  } catch (err) {
+    return null;
   }
 }
