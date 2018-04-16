@@ -3,7 +3,7 @@ import Hyde from 'mr-hyde';
 
 import { defaults, defaultsDeep } from 'lodash';
 import { join, extname } from 'path';
-import { readFile, readJSON, outputFile, outputJSON } from 'fs-extra';
+import { outputFile, outputJSON } from 'fs-extra';
 import { safeLoad } from 'js-yaml';
 
 export default class HydeCompiler extends CachingWriter {
@@ -25,71 +25,21 @@ export default class HydeCompiler extends CachingWriter {
         .replace(new RegExp(`${ext}$`), '');
 
       if (await hyde.parseFile(fullpath, { id }) === undefined) {
-        switch (ext) {
-          case '.yml':
-            let yaml = await tryReadYAML(fullpath);
-            let yamlPath = join(outputPath, `${id}.yml`);
-            let jsonPath = join(outputPath, `${id}.json`);
-
-            if (yaml !== null) {
-              await outputFile(yamlPath, await readFile(fullpath));
-              await outputJSON(jsonPath, defaultsDeep(...[
-                await tryReadJSON(fullpath.replace(/\.yml$/, '.json')),
-                yaml,
-                await tryReadJSON(outputPath)
-              ]));
-            }
-
-            break;
-          case '.json':
-            await outputJSON(join(outputPath, `${id}.json`), defaultsDeep(...[
-              await tryReadJSON(fullpath),
-              await tryReadJSON(outputPath)
-            ]));
-
-            break;
-        }
+        // nop
+        // todo: consider adding config'able include / exclude globs?
       }
     }
 
-    for (let item of hyde.items) {
-      let filepath = join(outputPath, `${item.id}${item.ext}`);
-      let jsonFilepath = join(outputPath, `${item.id}.json`);
-      let json = await tryReadJSON(jsonFilepath);
-      let yaml = await tryReadYAML(join(outputPath, `${item.id}.yml`));
+    for (let model of hyde.models) {
+      let jsonFilepath = join(outputPath, `${model.id}.json`);
 
-      await outputFile(filepath, item.markdown);
-      await outputJSON(jsonFilepath, defaultsDeep(...[
-        json || {},
-        yaml || {},
-        hyde.serialize(item)
-      ]));
+      await outputJSON(jsonFilepath, hyde.serialize(model));
+
+      if (model.markdown) {
+        let contentFilepath = join(outputPath, `${model.id}${model.ext}`);
+
+        await outputFile(contentFilepath, model.markdown);
+      }
     }
-
-    for (let collection of hyde.collections) {
-      let filepath = join(outputPath, `${collection.id}.json`);
-      let json = await tryReadJSON(filepath);
-
-      await outputJSON(filepath, defaultsDeep(...[
-        json || {},
-        hyde.serialize(collection)
-      ]));
-    }
-  }
-}
-
-async function tryReadJSON(filepath) {
-  try {
-    return await readJSON(filepath);
-  } catch (err) {
-    return null;
-  }
-}
-
-async function tryReadYAML(filepath) {
-  try {
-    return safeLoad(await readFile(filepath, 'utf-8'));
-  } catch (err) {
-    return null;
   }
 }
